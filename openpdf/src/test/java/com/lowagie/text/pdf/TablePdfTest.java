@@ -1,9 +1,10 @@
 package com.lowagie.text.pdf;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Phrase;
+import com.lowagie.text.*;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
 
 public class TablePdfTest {
 
@@ -108,6 +109,34 @@ public class TablePdfTest {
                 document.close();
         }
 
+    }
+
+    /**
+     * Makes sure that the cells whose neighbors are spanning multiple rows have a maxHeight that
+     * is a fraction of the spanning cell's height
+     */
+    @Test
+    void testTableSplitting() {
+        PdfPTable innerTable = createPdfTable(1);
+
+        for(int i = 0; i< 3; i++){
+            innerTable.addCell("THIS IS A TEST\nTHIS IS A TEST\nTHIS IS A TEST\nTHIS IS A TEST\n");
+        }
+        PdfPTable outerTable = createPdfTable(2);
+
+        PdfPCell tableCell = new PdfPCell(innerTable);
+        tableCell.setRowspan(3);
+        outerTable.addCell(tableCell);
+
+        float expectedCellHeight = tableCell.getMaxHeight()/3;
+
+        for(int i = 0; i< 3; i++){
+            outerTable.addCell("row " + i);
+        }
+        ArrayList<PdfPRow> rows = outerTable.rows;
+        assertEquals(rows.get(0).maxHeight, expectedCellHeight);
+        assertEquals(rows.get(1).maxHeight, expectedCellHeight);
+        assertEquals(rows.get(2).maxHeight, expectedCellHeight);
     }
 
     private PdfPTable createPdfTable(int numberOfColumns)

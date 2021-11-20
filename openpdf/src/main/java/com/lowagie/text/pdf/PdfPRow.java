@@ -60,7 +60,7 @@ import com.lowagie.text.ExceptionConverter;
 
 /**
  * A row in a PdfPTable.
- * 
+ *
  * @author Paulo Soares (psoares@consiste.pt)
  */
 public class PdfPRow {
@@ -85,15 +85,15 @@ public class PdfPRow {
     protected float[] extraHeights;
 
     protected float maxHeight = 0;
-    
+
     protected boolean calculated = false;
-    
+
     private int[] canvasesPos;
-    
+
     /**
      * Constructs a new PdfPRow with the cells in the array that was passed
      * as a parameter.
-     * 
+     *
      * @param cells an array of PdfCell to put into the PdfRow
      */
     public PdfPRow(PdfPCell[] cells) {
@@ -104,7 +104,7 @@ public class PdfPRow {
 
     /**
      * Makes a copy of an existing row.
-     * 
+     *
      * @param row the PdfRow to copy
      */
     public PdfPRow(PdfPRow row) {
@@ -122,7 +122,7 @@ public class PdfPRow {
 
     /**
      * Sets the widths of the columns in the row.
-     * 
+     *
      * @param widths    The width of the columns
      * @return true if everything went right
      */
@@ -134,12 +134,12 @@ public class PdfPRow {
         calculated = false;
         for (int k = 0; k < widths.length; ++k) {
             PdfPCell cell = cells[k];
-            
+
             if (cell == null) {
                 total += widths[k];
                 continue;
             }
-            
+
             cell.setLeft(total);
             int last = k + cell.getColspan();
             for (; k < last; ++k)
@@ -161,7 +161,7 @@ public class PdfPRow {
             extraHeights[i] = 0;
         }
     }
-    
+
     /**
      * Sets an extra height for a cell.
      * @param    cell    the index of the cell that needs an extra height
@@ -173,10 +173,10 @@ public class PdfPRow {
             return;
         extraHeights[cell] = height;
     }
-    
+
     /**
      * Calculates the heights of each cell in the row.
-     * 
+     *
      * @return the maximum height of the row.
      */
     public float calculateHeights() {
@@ -187,8 +187,8 @@ public class PdfPRow {
                 continue;
             } else {
                 height = cell.getMaxHeight();
-                if ((height > maxHeight) && (cell.getRowspan() == 1))
-                    maxHeight = height;
+                if (height/cell.getRowspan() > maxHeight)
+                    maxHeight = height/cell.getRowspan();
             }
         }
         calculated = true;
@@ -197,7 +197,7 @@ public class PdfPRow {
 
     /**
      * Writes the border and background of one cell in the row.
-     * 
+     *
      * @param xPos The x-coordinate where the table starts on the canvas
      * @param yPos The y-coordinate where the table starts on the canvas
      * @param currentMaxHeight The height of the cell to be drawn.
@@ -213,7 +213,7 @@ public class PdfPRow {
             float top = cell.getTop() + yPos;
             float left = cell.getLeft() + xPos;
             float bottom = top - currentMaxHeight;
-            
+
             if (background != null) {
                 PdfContentByte backgr = canvases[PdfPTable.BACKGROUNDCANVAS];
                 backgr.setColorFill(background);
@@ -287,10 +287,10 @@ public class PdfPRow {
         ct.setSimpleColumn(left, bottom, right, top);
         return top;
     }
-    
+
     /**
      * Writes a number of cells (not necessarily all cells).
-     * 
+     *
      * @param    colStart The first column to be written.
      * Remember that the column index starts with 0.
      * @param    colEnd The last column to be written.
@@ -311,7 +311,7 @@ public class PdfPRow {
             colStart = 0;
         if (colStart >= colEnd)
             return;
-        
+
         int newStart;
         for (newStart = colStart; newStart >= 0; --newStart) {
             if (cells[newStart] != null)
@@ -319,22 +319,22 @@ public class PdfPRow {
             if (newStart > 0)
                 xPos -= widths[newStart - 1];
         }
-        
+
         if (newStart < 0)
             newStart = 0;
         if (cells[newStart] != null)
             xPos -= cells[newStart].getLeft();
-        
+
         for (int k = newStart; k < colEnd; ++k) {
             PdfPCell cell = cells[k];
             if (cell == null)
                 continue;
             float currentMaxHeight = maxHeight + extraHeights[k];
-            
+
             writeBorderAndBackground(xPos, yPos, currentMaxHeight, cell, canvases);
 
             Image img = cell.getImage();
-            
+
             float tly = cell.getTop() + yPos - cell.getEffectivePaddingTop();
             if (cell.getHeight() <= currentMaxHeight) {
                 switch (cell.getVerticalAlignment()) {
@@ -453,7 +453,7 @@ public class PdfPRow {
                             restoreCanvases(canvases);
                         }
                     }
-                } 
+                }
                 else {
                     float fixedHeight = cell.getFixedHeight();
                     float rightLimit = cell.getRight() + xPos
@@ -523,10 +523,10 @@ public class PdfPRow {
             }
         }
     }
-    
+
     /**
      * Checks if the dimensions of the columns were calculated.
-     * 
+     *
      * @return true if the dimensions of the columns were calculated
      */
     public boolean isCalculated() {
@@ -535,7 +535,7 @@ public class PdfPRow {
 
     /**
      * Gets the maximum height of the row (i.e. of the 'highest' cell).
-     * 
+     *
      * @return the maximum height of the row
      */
     public float getMaxHeights() {
@@ -547,7 +547,7 @@ public class PdfPRow {
     /**
      * Changes the maximum height of the row (to make it higher).
      * (added by Jin-Hsia Yang)
-     * 
+     *
      * @param maxHeight the new maximum height
      */
     public void setMaxHeights(float maxHeight) {
@@ -677,12 +677,12 @@ public class PdfPRow {
         split.calculateHeights();
         return split;
     }
-    
+
     /**
      * Returns the array of cells in the row.
      * Please be extremely careful with this method.
      * Use the cells as read only objects.
-     * 
+     *
      * @return    an array of cells
      * @since    2.1.1
      */

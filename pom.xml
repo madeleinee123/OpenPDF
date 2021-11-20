@@ -198,7 +198,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
         <plugins>
             <!-- Create sources for better debugging and context assist -->
             <plugin>
